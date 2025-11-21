@@ -10,7 +10,8 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.plasmoid
 import org.kde.plasma.components 3.0 as PlasmaComponents
-import org.kde.plasma.extras as PlasmaExtras
+
+pragma ComponentBehavior: Bound
 
 PlasmoidItem {
     id: root
@@ -25,11 +26,11 @@ PlasmoidItem {
 
     // Define minimums for the Plasmoid itself
     property int plasmoidMinimumWidth: Kirigami.Units.gridUnit * 5
-    property int plasmoidMinimumHeight: Kirigami.Units.gridUnit * 5 // Adjusted for content adaptability
+    property int plasmoidMinimumHeight: Kirigami.Units.gridUnit * 5
 
     // The PlasmoidItem's size will adapt to its content (fullRepresentation)
-    implicitWidth: Math.max(plasmoidMinimumWidth, representationItem.implicitWidth)
-    implicitHeight: Math.max(plasmoidMinimumHeight, representationItem.implicitHeight)
+    implicitWidth: Math.max(plasmoidMinimumWidth, fullRepresentationItem.implicitWidth)
+    implicitHeight: Math.max(plasmoidMinimumHeight, fullRepresentationItem.implicitHeight)
 
     preferredRepresentation: compactRepresentation
 
@@ -90,15 +91,15 @@ PlasmoidItem {
             }
             PlasmaComponents.Label {
                 text: "<a href='https://api.spot-hinta.fi/html/150/6'>See more prices...</a>"
-                onLinkActivated: Qt.openUrlExternally(link)
+                onLinkActivated: (link) => Qt.openUrlExternally(link)
                 font.pixelSize: Math.round(Kirigami.Theme.smallFont.pixelSize * 0.9)
                 elide: Text.ElideLeft
                 horizontalAlignment: Text.AlignRight
                 Layout.fillWidth: true
             }
             PlasmaComponents.Label {
-                text: "<a href='https://vili.dev'>Made by Vili</a> | <a href='https://spot-hinta.fi'>Powered by spot-hinta.fi</a>"
-                onLinkActivated: Qt.openUrlExternally(link)
+                text: "<a href='https://vil.github.io'>Made by Vili</a> | <a href='https://spot-hinta.fi'>Powered by spot-hinta.fi</a>"
+                onLinkActivated: (link) => Qt.openUrlExternally(link)
                 font.pixelSize: Math.round(Kirigami.Theme.smallFont.pixelSize * 0.8)
                 elide: Text.ElideLeft
                 horizontalAlignment: Text.AlignRight
@@ -106,7 +107,7 @@ PlasmoidItem {
             }
         }
     }
-    
+
     // Update once the root is opened.
     Component.onCompleted: {
         call();

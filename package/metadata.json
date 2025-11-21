@@ -1,22 +1,22 @@
 {
-    "KPackageStructure": "Plasma/Applet",
-    "X-Plasma-API-Minimum-Version": "6.0",
-    "KPlugin": {
-        "Authors": [
-            {
-                "Email": "vili@riseup.net",
-                "Name": "Vili",
-                "Website": "https://vili.dev"
-            }
-        ],
-        "Category": "Utilities",
-        "Description": "Tells you the current electricity prices in Finland.",
-        "Icon": "braindump",
-        "Id": "dev.vili.sahkoporssi",
-        "Name": "Sähköpörssi",
-        "Version": "1.4",
-        "Website": "https://github.com/vil/sahkoporssi-widget",
-        "License": "GPL-3"
-    },
-    "Keywords": "Sähköpörssi, sähkö, electricity, Finland, Suomi"
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0",
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "0xv@tuta.com",
+        "Name": "Vili",
+        "Website": "https://vil.github.io"
+      }
+    ],
+    "Category": "Utilities",
+    "Description": "Tells you the current electricity prices in Finland.",
+    "Icon": "braindump",
+    "Id": "dev.vili.sahkoporssi",
+    "Name": "Sähköpörssi",
+    "Version": "1.5",
+    "Website": "https://github.com/vil/sahkoporssi-widget",
+    "License": "GPL-3"
+  },
+  "Keywords": "Sähköpörssi, sähkö, electricity, Finland, Suomi"
 }
