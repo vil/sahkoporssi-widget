@@ -6,15 +6,15 @@
       {
         "Email": "0xv@tuta.com",
         "Name": "Vili",
-        "Website": "https://vil.github.io"
+        "Website": "https://vili.dev"
       }
     ],
     "Category": "Utilities",
-    "Description": "Tells you the current electricity prices in Finland.",
+    "Description": "Tells you the current electricity price in Finland.",
     "Icon": "braindump",
     "Id": "dev.vili.sahkoporssi",
     "Name": "Sähköpörssi",
-    "Version": "1.5",
+    "Version": "1.5.1",
     "Website": "https://github.com/vil/sahkoporssi-widget",
     "License": "GPL-3"
   },

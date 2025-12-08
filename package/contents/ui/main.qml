@@ -5,13 +5,13 @@
  * file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
  */
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.plasmoid
 import org.kde.plasma.components 3.0 as PlasmaComponents
-
-pragma ComponentBehavior: Bound
 
 PlasmoidItem {
     id: root
@@ -35,16 +35,16 @@ PlasmoidItem {
     preferredRepresentation: compactRepresentation
 
     compactRepresentation: PlasmaComponents.Label {
-      id: panelText
-      anchors.fill: parent
-      text: isNaN(parseFloat(root.priceInCents)) ? root.priceInCents : `⚡ ${root.priceInCents} snt/kWh`;
-
-      Layout.minimumWidth: implicitWidth
-      MouseArea {
-        hoverEnabled: true
+        id: panelText
         anchors.fill: parent
-        onClicked: root.expanded = true
-      }
+        text: isNaN(parseFloat(root.priceInCents)) ? root.priceInCents : `⚡ ${root.priceInCents} snt/kWh`
+
+        Layout.minimumWidth: implicitWidth
+        MouseArea {
+            hoverEnabled: true
+            anchors.fill: parent
+            onClicked: root.expanded = true
+        }
     }
 
     fullRepresentation: Item {
@@ -91,15 +91,15 @@ PlasmoidItem {
             }
             PlasmaComponents.Label {
                 text: "<a href='https://api.spot-hinta.fi/html/150/6'>See more prices...</a>"
-                onLinkActivated: (link) => Qt.openUrlExternally(link)
+                onLinkActivated: link => Qt.openUrlExternally(link)
                 font.pixelSize: Math.round(Kirigami.Theme.smallFont.pixelSize * 0.9)
                 elide: Text.ElideLeft
                 horizontalAlignment: Text.AlignRight
                 Layout.fillWidth: true
             }
             PlasmaComponents.Label {
-                text: "<a href='https://vil.github.io'>Made by Vili</a> | <a href='https://spot-hinta.fi'>Powered by spot-hinta.fi</a>"
-                onLinkActivated: (link) => Qt.openUrlExternally(link)
+                text: "<a href='https://vili.dev'>Made by Vili</a> | <a href='https://spot-hinta.fi'>Powered by spot-hinta.fi</a>"
+                onLinkActivated: link => Qt.openUrlExternally(link)
                 font.pixelSize: Math.round(Kirigami.Theme.smallFont.pixelSize * 0.8)
                 elide: Text.ElideLeft
                 horizontalAlignment: Text.AlignRight
@@ -118,7 +118,7 @@ PlasmoidItem {
         interval: 900000 // 15 minutes
         repeat: true
         running: true
-        onTriggered: call();
+        onTriggered: call()
     }
 
     // Gets the current hours price.
@@ -126,7 +126,7 @@ PlasmoidItem {
         var apiUrl = "https://api.spot-hinta.fi/JustNow";
         var request = new XMLHttpRequest();
         request.open("GET", apiUrl, true);
-        request.onreadystatechange = function() {
+        request.onreadystatechange = function () {
             if (request.readyState === XMLHttpRequest.DONE) {
                 if (request.status === 200) {
                     var response = JSON.parse(request.responseText);
@@ -156,36 +156,36 @@ PlasmoidItem {
         var request = new XMLHttpRequest();
 
         request.open("GET", apiUrl, true);
-        request.onreadystatechange = function() {
+        request.onreadystatechange = function () {
             if (request.readyState === XMLHttpRequest.DONE) {
                 if (request.status === 200) {
                     var response = JSON.parse(request.responseText);
                     var priceInCents = (response.PriceWithTax * 100).toFixed(2);
                     var formattedResponse = `Price at ${formattedTime}: ${priceInCents} snt/kWh`;
-                    switch(hours) {
-                        case 1:
-                            root.nextPrice1 = formattedResponse;
-                            break;
-                        case 2:
-                            root.nextPrice2 = formattedResponse;
-                            break;
-                        case 3:
-                            root.nextPrice3 = formattedResponse;
-                            break;
+                    switch (hours) {
+                    case 1:
+                        root.nextPrice1 = formattedResponse;
+                        break;
+                    case 2:
+                        root.nextPrice2 = formattedResponse;
+                        break;
+                    case 3:
+                        root.nextPrice3 = formattedResponse;
+                        break;
                     }
                 } else {
                     console.error(`Error fetching electricity price (+${hours}h):`, request.status, request.statusText);
                     var errorMsg = `Error for ${formattedTime}!`;
-                    switch(hours) {
-                        case 1:
-                            root.nextPrice1 = errorMsg;
-                            break;
-                        case 2:
-                            root.nextPrice2 = errorMsg;
-                            break;
-                        case 3:
-                            root.nextPrice3 = errorMsg;
-                            break;
+                    switch (hours) {
+                    case 1:
+                        root.nextPrice1 = errorMsg;
+                        break;
+                    case 2:
+                        root.nextPrice2 = errorMsg;
+                        break;
+                    case 3:
+                        root.nextPrice3 = errorMsg;
+                        break;
                     }
                 }
             }
