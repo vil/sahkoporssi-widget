@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# ~Vili (https://vili.dev)
+# Vili <https://vili.dev>
 
 set -e
 

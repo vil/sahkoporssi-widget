@@ -16,11 +16,8 @@ import org.kde.plasma.components 3.0 as PlasmaComponents
 PlasmoidItem {
     id: root
 
-    property string price: "Fetching..."
-    property string priceInCents: price
-    property string nextPrice1: ""
-    property string nextPrice2: ""
-    property string nextPrice3: ""
+    property var prices: ["Fething...", "", "", ""]
+    property string priceInCents: prices[0]
 
     Plasmoid.title: "Sähköpörssi"
 
@@ -37,7 +34,7 @@ PlasmoidItem {
     compactRepresentation: PlasmaComponents.Label {
         id: panelText
         anchors.fill: parent
-        text: isNaN(parseFloat(root.priceInCents)) ? root.priceInCents : `⚡ ${root.priceInCents} snt/kWh`
+        text: isNaN(parseFloat(root.priceInCents)) ? root.priceInCents : `${root.priceInCents} snt/kWh`
 
         Layout.minimumWidth: implicitWidth
         MouseArea {
@@ -66,25 +63,25 @@ PlasmoidItem {
             spacing: Kirigami.Units.smallSpacing
 
             PlasmaComponents.Label {
-                text: root.price
+                text: root.prices[0]
                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
                 horizontalAlignment: Text.AlignLeft
                 Layout.fillWidth: true // Fills the width provided by internalColumn
             }
             PlasmaComponents.Label {
-                text: root.nextPrice1
+                text: root.prices[1]
                 font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                 horizontalAlignment: Text.AlignLeft
                 Layout.fillWidth: true
             }
             PlasmaComponents.Label {
-                text: root.nextPrice2
+                text: root.prices[2]
                 font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                 horizontalAlignment: Text.AlignLeft
                 Layout.fillWidth: true
             }
             PlasmaComponents.Label {
-                text: root.nextPrice3
+                text: root.prices[3]
                 font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                 horizontalAlignment: Text.AlignLeft
                 Layout.fillWidth: true
@@ -134,12 +131,12 @@ PlasmoidItem {
                     var priceInCents = (response.PriceWithTax * 100).toFixed(2);
                     // Update label text based on current locale for number formatting if possible, or use as is.
                     var formattedResponse = `Currently: ${priceInCents} snt/kWh`;
-                    root.price = formattedResponse;
+                    root.prices[0] = formattedResponse;
                     root.priceInCents = priceInCents;
                 } else {
                     console.error("Error fetching electricity price (now):", request.status, request.statusText);
-                    root.price = "Error fetching current price!";
-                    root.priceInCents = root.price;
+                    root.prices[0] = "Error fetching current price!";
+                    root.priceInCents = root.prices[0];
                 }
             }
         };
@@ -164,13 +161,13 @@ PlasmoidItem {
                     var formattedResponse = `Price at ${formattedTime}: ${priceInCents} snt/kWh`;
                     switch (hours) {
                     case 1:
-                        root.nextPrice1 = formattedResponse;
+                        root.prices[1] = formattedResponse;
                         break;
                     case 2:
-                        root.nextPrice2 = formattedResponse;
+                        root.prices[2] = formattedResponse;
                         break;
                     case 3:
-                        root.nextPrice3 = formattedResponse;
+                        root.prices[3] = formattedResponse;
                         break;
                     }
                 } else {
@@ -178,13 +175,13 @@ PlasmoidItem {
                     var errorMsg = `Error for ${formattedTime}!`;
                     switch (hours) {
                     case 1:
-                        root.nextPrice1 = errorMsg;
+                        root.prices[1] = errorMsg;
                         break;
                     case 2:
-                        root.nextPrice2 = errorMsg;
+                        root.prices[2] = errorMsg;
                         break;
                     case 3:
-                        root.nextPrice3 = errorMsg;
+                        root.prices[3] = errorMsg;
                         break;
                     }
                 }
