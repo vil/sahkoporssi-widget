@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2024-2025. Vili and contributors.
- * This source code is subject to the terms of the GNU General Public
- * License, version 3. If a copy of the GPL was not distributed with this
- * file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
- */
+* Copyright (c) 2024-2026. Vili and contributors.
+* This source code is subject to the terms of the GNU General Public
+* License, version 3.
+*/
 
 pragma ComponentBehavior: Bound
 
@@ -16,101 +15,99 @@ import org.kde.plasma.components 3.0 as PlasmaComponents
 PlasmoidItem {
     id: root
 
-    property var prices: ["Fething...", "", "", ""]
-    property string priceInCents: prices[0]
-
     Plasmoid.title: "Sähköpörssi"
 
-    // Define minimums for the Plasmoid itself
-    property int plasmoidMinimumWidth: Kirigami.Units.gridUnit * 5
-    property int plasmoidMinimumHeight: Kirigami.Units.gridUnit * 5
-
-    // The PlasmoidItem's size will adapt to its content (fullRepresentation)
-    implicitWidth: Math.max(plasmoidMinimumWidth, fullRepresentationItem.implicitWidth)
-    implicitHeight: Math.max(plasmoidMinimumHeight, fullRepresentationItem.implicitHeight)
-
+    property string currentPriceStr: "Fetching..."
     preferredRepresentation: compactRepresentation
+
+    ListModel {
+        id: priceModel
+        ListElement {
+            display: "Fetching..."
+            isHeader: true
+        }
+        ListElement {
+            display: ""
+            isHeader: false
+        }
+        ListElement {
+            display: ""
+            isHeader: false
+        }
+        ListElement {
+            display: ""
+            isHeader: false
+        }
+    }
 
     compactRepresentation: PlasmaComponents.Label {
         id: panelText
         anchors.fill: parent
-        text: isNaN(parseFloat(root.priceInCents)) ? root.priceInCents : `${root.priceInCents} snt/kWh`
+
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+
+        text: root.currentPriceStr
 
         Layout.minimumWidth: implicitWidth
+
         MouseArea {
             hoverEnabled: true
             anchors.fill: parent
-            onClicked: root.expanded = true
+            onClicked: root.expanded = !root.expanded
         }
     }
 
     fullRepresentation: Item {
         id: representationItem
 
-        // Padding around the content column
-        readonly property int contentPadding: Kirigami.Units.smallSpacing
+        // Define the popup size based on the layout's size + padding
+        implicitWidth: mainLayout.implicitWidth + Kirigami.Units.largeSpacing
+        implicitHeight: mainLayout.implicitHeight + Kirigami.Units.largeSpacing
 
-        // This Item's implicit size is based on the column plus padding
-        implicitWidth: internalColumn.implicitWidth + (contentPadding * 2)
-        implicitHeight: internalColumn.implicitHeight + (contentPadding * 2)
-
-        Column {
-            id: internalColumn
-            x: representationItem.contentPadding // Apply padding by positioning
-            y: representationItem.contentPadding // Apply padding by positioning
-            // The Column's width will be its implicit width (based on widest child)
-            // Spacing between labels
+        ColumnLayout {
+            id: mainLayout
+            anchors.fill: parent
+            anchors.margins: Kirigami.Units.smallSpacing
             spacing: Kirigami.Units.smallSpacing
 
-            PlasmaComponents.Label {
-                text: root.prices[0]
-                font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
-                horizontalAlignment: Text.AlignLeft
-                Layout.fillWidth: true // Fills the width provided by internalColumn
+            Repeater {
+                model: priceModel
+                delegate: PlasmaComponents.Label {
+                    required property string display
+                    required property bool isHeader
+
+                    text: display
+                    font.pixelSize: isHeader ? Kirigami.Theme.defaultFont.pixelSize : Kirigami.Theme.smallFont.pixelSize
+
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignLeft
+                }
             }
-            PlasmaComponents.Label {
-                text: root.prices[1]
-                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                horizontalAlignment: Text.AlignLeft
-                Layout.fillWidth: true
-            }
-            PlasmaComponents.Label {
-                text: root.prices[2]
-                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                horizontalAlignment: Text.AlignLeft
-                Layout.fillWidth: true
-            }
-            PlasmaComponents.Label {
-                text: root.prices[3]
-                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                horizontalAlignment: Text.AlignLeft
-                Layout.fillWidth: true
-            }
+
+            // Footer Links
             PlasmaComponents.Label {
                 text: "<a href='https://api.spot-hinta.fi/html/150/6'>See more prices...</a>"
                 onLinkActivated: link => Qt.openUrlExternally(link)
                 font.pixelSize: Math.round(Kirigami.Theme.smallFont.pixelSize * 0.9)
-                elide: Text.ElideLeft
-                horizontalAlignment: Text.AlignRight
+                Layout.alignment: Qt.AlignRight
                 Layout.fillWidth: true
+                Layout.topMargin: Kirigami.Units.smallSpacing
             }
+
             PlasmaComponents.Label {
                 text: "<a href='https://vili.dev'>Made by Vili</a> | <a href='https://spot-hinta.fi'>Powered by spot-hinta.fi</a>"
                 onLinkActivated: link => Qt.openUrlExternally(link)
                 font.pixelSize: Math.round(Kirigami.Theme.smallFont.pixelSize * 0.8)
-                elide: Text.ElideLeft
-                horizontalAlignment: Text.AlignRight
+                Layout.alignment: Qt.AlignRight
                 Layout.fillWidth: true
+                opacity: 0.7
             }
         }
     }
 
-    // Update once the root is opened.
-    Component.onCompleted: {
-        call();
-    }
+    Component.onCompleted: call()
 
-    // Keep updating...
     Timer {
         interval: 900000 // 15 minutes
         repeat: true
@@ -118,94 +115,59 @@ PlasmoidItem {
         onTriggered: call()
     }
 
-    // Gets the current hours price.
-    function fetchElectricityPriceNow() {
-        var apiUrl = "https://api.spot-hinta.fi/JustNow";
-        var request = new XMLHttpRequest();
-        request.open("GET", apiUrl, true);
-        request.onreadystatechange = function () {
-            if (request.readyState === XMLHttpRequest.DONE) {
-                if (request.status === 200) {
-                    var response = JSON.parse(request.responseText);
-                    // Assuming PriceWithTax is in EUR/kWh, converting to snt/kWh
-                    var priceInCents = (response.PriceWithTax * 100).toFixed(2);
-                    // Update label text based on current locale for number formatting if possible, or use as is.
-                    var formattedResponse = `Currently: ${priceInCents} snt/kWh`;
-                    root.prices[0] = formattedResponse;
-                    root.priceInCents = priceInCents;
-                } else {
-                    console.error("Error fetching electricity price (now):", request.status, request.statusText);
-                    root.prices[0] = "Error fetching current price!";
-                    root.priceInCents = root.prices[0];
-                }
-            }
-        };
-        request.send();
-    }
-
-    // Get the price of the next hour.
-    function fetchElectricityPriceNext(hours) {
-        let date = new Date();
-        date.setHours(date.getHours() + hours);
-        var formattedTime = formatDate(date);
-        // The API seems to provide the price for the hour *starting* at the lookForwardHours offset.
-        var apiUrl = "https://api.spot-hinta.fi/JustNow?lookForwardHours=" + hours;
-        var request = new XMLHttpRequest();
-
-        request.open("GET", apiUrl, true);
-        request.onreadystatechange = function () {
-            if (request.readyState === XMLHttpRequest.DONE) {
-                if (request.status === 200) {
-                    var response = JSON.parse(request.responseText);
-                    var priceInCents = (response.PriceWithTax * 100).toFixed(2);
-                    var formattedResponse = `Price at ${formattedTime}: ${priceInCents} snt/kWh`;
-                    switch (hours) {
-                    case 1:
-                        root.prices[1] = formattedResponse;
-                        break;
-                    case 2:
-                        root.prices[2] = formattedResponse;
-                        break;
-                    case 3:
-                        root.prices[3] = formattedResponse;
-                        break;
-                    }
-                } else {
-                    console.error(`Error fetching electricity price (+${hours}h):`, request.status, request.statusText);
-                    var errorMsg = `Error for ${formattedTime}!`;
-                    switch (hours) {
-                    case 1:
-                        root.prices[1] = errorMsg;
-                        break;
-                    case 2:
-                        root.prices[2] = errorMsg;
-                        break;
-                    case 3:
-                        root.prices[3] = errorMsg;
-                        break;
-                    }
-                }
-            }
-        };
-        request.send();
-    }
-
-    // Call all fetch functions.
     function call() {
-        fetchElectricityPriceNow();
-        for (let i = 1; i <= 3; i++) {
-            fetchElectricityPriceNext(i);
+        for (let i = 0; i <= 3; i++) {
+            fetchPrice(i);
         }
     }
 
-    // Format date to display in a readable format (e.g., "5 PM")
+    function fetchPrice(hoursOffset) {
+        let date = new Date();
+        date.setHours(date.getHours() + hoursOffset);
+
+        let API = "https://api.spot-hinta.fi/JustNow";
+        if (hoursOffset > 0) {
+            API += "?lookForwardHours=" + hoursOffset;
+        }
+
+        var request = new XMLHttpRequest();
+        request.open("GET", API, true);
+        request.onreadystatechange = function () {
+            if (request.readyState === XMLHttpRequest.DONE) {
+                if (request.status === 200) {
+                    try {
+                        var response = JSON.parse(request.responseText);
+                        var priceInCents = (response.PriceWithTax * 100).toFixed(2);
+
+                        var displayText = "";
+
+                        if (hoursOffset === 0) {
+                            root.currentPriceStr = `${priceInCents} snt/kWh`;
+                            displayText = `Currently: ${priceInCents} snt/kWh`;
+                        } else {
+                            var timeStr = formatDate(date);
+                            displayText = `Price at ${timeStr}: ${priceInCents} snt/kWh`;
+                        }
+
+                        priceModel.setProperty(hoursOffset, "display", displayText);
+                    } catch (e) {
+                        console.error("JSON Parse error", e);
+                    }
+                } else {
+                    var errorText = (hoursOffset === 0) ? "Error" : `Error at ${formatDate(date)}`;
+                    priceModel.setProperty(hoursOffset, "display", errorText);
+                    if (hoursOffset === 0)
+                        root.currentPriceStr = "Error";
+                }
+            }
+        };
+
+        request.send();
+    }
+
     function formatDate(date) {
         var hours = date.getHours();
-        var ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12;
-        hours = hours ? hours : 12;
-        // minutes = minutes < 10 ? '0' + minutes : minutes;
-        var strTime = hours + ' ' + ampm;
-        return strTime;
+        var formattedHours = ("0" + hours).slice(-2);
+        return formattedHours + ":00";
     }
 }
