@@ -14,9 +14,9 @@
     "Icon": "braindump",
     "Id": "dev.vili.sahkoporssi",
     "Name": "Sähköpörssi",
-    "Version": "1.5.1",
+    "Version": "1.6",
     "Website": "https://github.com/vil/sahkoporssi-widget",
     "License": "GPL-3"
   },
-  "Keywords": "Sähköpörssi, sähkö, electricity, Finland, Suomi"
+  "Keywords": "Sähköpörssi, sähkö, pörssisähkö, electricity, Finland, Suomi"
 }
