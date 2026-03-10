@@ -1,6 +1,8 @@
 # sahkoporssi-widget
 Kde plasma widget that shows the currents hour electricity price in Finland
 
+Also check out the [new Android app](https://github.com/vil/spot) for viewing the electricity price!
+
 ### Installation
 1. `git clone https://github.com/vil/sahkoporssi-widget.git`
 2. `cd sahkoporssi-widget`
