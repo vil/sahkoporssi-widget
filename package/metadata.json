@@ -4,19 +4,19 @@
   "KPlugin": {
     "Authors": [
       {
-        "Email": "0xv@tuta.com",
+        "Email": "v@vili.dev",
         "Name": "Vili",
         "Website": "https://vili.dev"
       }
     ],
     "Category": "Utilities",
-    "Description": "Tells you the current electricity price in Finland.",
+    "Description": "Shows you the current electricity spot price in Finland.",
     "Icon": "braindump",
-    "Id": "dev.vili.sahkoporssi",
-    "Name": "Sähköpörssi",
+    "Id": "dev.vili.spot.widget",
+    "Name": "Pörssisähkö",
     "Version": "1.6",
-    "Website": "https://github.com/vil/sahkoporssi-widget",
+    "Website": "https://github.com/vil/spot-widget",
     "License": "GPL-3"
   },
-  "Keywords": "Sähköpörssi, sähkö, pörssisähkö, electricity, Finland, Suomi"
+  "Keywords": "Sähköpörssi, sähkö, pörssisähkö, electricity, Finland, Suomi, spot-price, spotprice"
 }

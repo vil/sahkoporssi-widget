@@ -1,11 +1,11 @@
 #! /usr/bin/env bash
 
-# Vili <https://vili.dev>
+# Copyright (c) Vili <https://vili.dev>
 
 set -e
 
 PLASMOID_DIR=$(dirname "$0")/package
-plasmoidName="dev.vili.sahkoporssi"
+plasmoidName="dev.vili.spot.widget"
 filename="${plasmoidName}.tar"
 cd "$PLASMOID_DIR"
 tar -cvf $filename *

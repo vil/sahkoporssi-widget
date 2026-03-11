@@ -15,7 +15,7 @@ import org.kde.plasma.components 3.0 as PlasmaComponents
 PlasmoidItem {
     id: root
 
-    Plasmoid.title: "Sähköpörssi"
+    Plasmoid.title: "Pörssisähkö"
 
     property string currentPriceStr: "Fetching..."
     preferredRepresentation: compactRepresentation
