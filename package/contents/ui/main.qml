@@ -1,8 +1,8 @@
 /*
-* Copyright (c) 2024-2026. Vili and contributors.
-* This source code is subject to the terms of the GNU General Public
-* License, version 3.
-*/
+ * Copyright (c) 2024-2026. Vili and contributors.
+ * This source code is subject to the terms of the GNU General Public
+ * License, version 3.
+ */
 
 pragma ComponentBehavior: Bound
 
@@ -61,7 +61,6 @@ PlasmoidItem {
     fullRepresentation: Item {
         id: representationItem
 
-        // Define the popup size based on the layout's size + padding
         implicitWidth: mainLayout.implicitWidth + Kirigami.Units.largeSpacing
         implicitHeight: mainLayout.implicitHeight + Kirigami.Units.largeSpacing
 
@@ -85,7 +84,6 @@ PlasmoidItem {
                 }
             }
 
-            // Footer Links
             PlasmaComponents.Label {
                 text: "<a href='https://api.spot-hinta.fi/html/150/6'>See more prices...</a>"
                 onLinkActivated: link => Qt.openUrlExternally(link)
@@ -106,29 +104,18 @@ PlasmoidItem {
         }
     }
 
-    Component.onCompleted: call()
+    Component.onCompleted: fetchPrices()
 
     Timer {
         interval: 900000 // 15 minutes
         repeat: true
         running: true
-        onTriggered: call()
+        onTriggered: fetchPrices()
     }
 
-    function call() {
-        for (let i = 0; i <= 3; i++) {
-            fetchPrice(i);
-        }
-    }
-
-    function fetchPrice(hoursOffset) {
-        let date = new Date();
-        date.setHours(date.getHours() + hoursOffset);
-
-        let API = "https://api.spot-hinta.fi/JustNow";
-        if (hoursOffset > 0) {
-            API += "?lookForwardHours=" + hoursOffset;
-        }
+    function fetchPrices() {
+        // Defaults to 15m resolution based on Swagger documentation
+        let API = "https://api.spot-hinta.fi/Today";
 
         var request = new XMLHttpRequest();
         request.open("GET", API, true);
@@ -137,27 +124,59 @@ PlasmoidItem {
                 if (request.status === 200) {
                     try {
                         var response = JSON.parse(request.responseText);
-                        var priceInCents = (response.PriceWithTax * 100).toFixed(2);
 
-                        var displayText = "";
+                        // Sort array by date just to be safe
+                        response.sort((a, b) => new Date(a.DateTime) - new Date(b.DateTime));
 
-                        if (hoursOffset === 0) {
-                            root.currentPriceStr = `${priceInCents} snt/kWh`;
-                            displayText = `Currently: ${priceInCents} snt/kWh`;
-                        } else {
-                            var timeStr = formatDate(date);
-                            displayText = `Price at ${timeStr}: ${priceInCents} snt/kWh`;
+                        var now = new Date();
+                        var currentIndex = -1;
+
+                        // Find the current 15-minute block
+                        for (var i = 0; i < response.length; i++) {
+                            var blockTime = new Date(response[i].DateTime);
+                            var nextBlockTime = new Date(blockTime.getTime() + 15 * 60000); // Add 15 mins
+
+                            if (now >= blockTime && now < nextBlockTime) {
+                                currentIndex = i;
+                                break;
+                            }
                         }
 
-                        priceModel.setProperty(hoursOffset, "display", displayText);
+                        if (currentIndex !== -1) {
+                            // Populate the model with current and next 3 blocks
+                            for (var j = 0; j < 4; j++) {
+                                var dataIndex = currentIndex + j;
+
+                                // Ensure we don't go out of bounds (e.g., late at night without /Tomorrow data)
+                                if (dataIndex < response.length) {
+                                    var item = response[dataIndex];
+                                    var priceInCents = (item.PriceWithTax * 100).toFixed(2);
+                                    var apiDate = new Date(item.DateTime);
+                                    var timeStr = formatDate(apiDate);
+                                    var displayText = "";
+
+                                    if (j === 0) {
+                                        root.currentPriceStr = `${priceInCents} snt/kWh`;
+                                        displayText = `Currently: ${priceInCents} snt/kWh`;
+                                    } else {
+                                        displayText = `Price at ${timeStr}: ${priceInCents} snt/kWh`;
+                                    }
+
+                                    priceModel.setProperty(j, "display", displayText);
+                                } else {
+                                    priceModel.setProperty(j, "display", "Data for tomorrow not loaded");
+                                }
+                            }
+                        } else {
+                            root.currentPriceStr = "No data for current time";
+                            priceModel.setProperty(0, "display", "Could not find current time block");
+                        }
                     } catch (e) {
                         console.error("JSON Parse error", e);
+                        setErrorState();
                     }
                 } else {
-                    var errorText = (hoursOffset === 0) ? "Error" : `Error at ${formatDate(date)}`;
-                    priceModel.setProperty(hoursOffset, "display", errorText);
-                    if (hoursOffset === 0)
-                        root.currentPriceStr = "Error";
+                    setErrorState();
                 }
             }
         };
@@ -165,9 +184,17 @@ PlasmoidItem {
         request.send();
     }
 
+    function setErrorState() {
+        root.currentPriceStr = "Error";
+        priceModel.setProperty(0, "display", "Error fetching data");
+        for (var i = 1; i < 4; i++) {
+            priceModel.setProperty(i, "display", "");
+        }
+    }
+
     function formatDate(date) {
-        var hours = date.getHours();
-        var formattedHours = ("0" + hours).slice(-2);
-        return formattedHours + ":00";
+        var hours = ("0" + date.getHours()).slice(-2);
+        var minutes = ("0" + date.getMinutes()).slice(-2);
+        return hours + ":" + minutes;
     }
 }

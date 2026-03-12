@@ -14,7 +14,7 @@
     "Icon": "braindump",
     "Id": "dev.vili.spot.widget",
     "Name": "Pörssisähkö",
-    "Version": "1.6",
+    "Version": "1.6.1",
     "Website": "https://github.com/vil/spot-widget",
     "License": "GPL-3"
   },
